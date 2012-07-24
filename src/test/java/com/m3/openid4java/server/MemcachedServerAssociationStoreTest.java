@@ -40,7 +40,7 @@ public class MemcachedServerAssociationStoreTest {
     }
 
     @Test
-    public void find_A$String() throws Exception {
+    public void findAssociation_A$String() throws Exception {
 
         MemcachedServerAssociationStore store = new MemcachedServerAssociationStore(namespace, addresses);
 
@@ -50,16 +50,16 @@ public class MemcachedServerAssociationStoreTest {
             store.remove(handle);
 
             // should be not found
-            assertThat(store.find(handle), is(nullValue()));
+            assertThat(store.findAssociation(handle), is(nullValue()));
 
             String type = Association.TYPE_HMAC_SHA1;
             String macKey = "xcxf23232sdfsdf";
             Date datetimeToExpire = new Date(System.currentTimeMillis() + 10000L);
             ServerAssociation serverAssociation = new ServerAssociation(handle, type, macKey, datetimeToExpire);
-            store.save(serverAssociation);
+            store.saveAssociation(serverAssociation);
 
             // should be found
-            assertThat(store.find(handle), is(not(nullValue())));
+            assertThat(store.findAssociation(handle), is(not(nullValue())));
 
         } finally {
             store.remove(handle);
@@ -67,7 +67,7 @@ public class MemcachedServerAssociationStoreTest {
     }
 
     @Test
-    public void save_A$ServerAssociation() throws Exception {
+    public void saveAssociation_A$ServerAssociation() throws Exception {
 
         MemcachedServerAssociationStore store = new MemcachedServerAssociationStore(namespace, addresses);
 
@@ -76,14 +76,14 @@ public class MemcachedServerAssociationStoreTest {
         String macKey = "xcxf23232sdfsdf";
         Date datetimeToExpire = new Date(System.currentTimeMillis() + 10000L);
         ServerAssociation serverAssociation = new ServerAssociation(handle, type, macKey, datetimeToExpire);
-        store.save(serverAssociation);
+        store.saveAssociation(serverAssociation);
 
         // should be found
-        assertThat(store.find(handle), is(not(nullValue())));
+        assertThat(store.findAssociation(handle), is(not(nullValue())));
     }
 
     @Test
-    public void delete_A$ServerAssociation() throws Exception {
+    public void deleteAssociation_A$ServerAssociation() throws Exception {
 
         MemcachedServerAssociationStore store = new MemcachedServerAssociationStore(namespace, addresses);
 
@@ -92,15 +92,15 @@ public class MemcachedServerAssociationStoreTest {
         String macKey = "xcxf23232sdfsdf";
         Date datetimeToExpire = new Date(System.currentTimeMillis() + 10000L);
         ServerAssociation serverAssociation = new ServerAssociation(handle, type, macKey, datetimeToExpire);
-        store.save(serverAssociation);
+        store.saveAssociation(serverAssociation);
 
         // should be found
-        assertThat(store.find(handle), is(not(nullValue())));
+        assertThat(store.findAssociation(handle), is(not(nullValue())));
 
-        store.delete(serverAssociation);
+        store.deleteAssociation(serverAssociation);
 
         // should be not found
-        assertThat(store.find(handle), is(nullValue()));
+        assertThat(store.findAssociation(handle), is(nullValue()));
     }
 
     @Test
@@ -111,7 +111,6 @@ public class MemcachedServerAssociationStoreTest {
         String type = Association.TYPE_HMAC_SHA1;
         int expiryIn = 10;
 
-        // TODO
         Association assoc = store.generate(type, expiryIn);
         assertThat(assoc.getHandle(), is(not(nullValue())));
         assertThat(assoc.getMacKey(), is(not(nullValue())));

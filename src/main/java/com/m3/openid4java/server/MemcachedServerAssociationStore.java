@@ -48,16 +48,16 @@ public class MemcachedServerAssociationStore implements ServerAssociationStore {
         return "openid4java::" + namespace + "::" + handle;
     }
 
-    ServerAssociation find(String handle) throws Exception {
+    ServerAssociation findAssociation(String handle) throws Exception {
         return (ServerAssociation) memcached.get(toKey(handle));
     }
 
-    void save(ServerAssociation serverAssociation) throws Exception {
+    void saveAssociation(ServerAssociation serverAssociation) throws Exception {
         Long expiration = serverAssociation.getDatetimeToExpire().getTime() - System.currentTimeMillis();
         memcached.set(toKey(serverAssociation.getHandle()), expiration.intValue(), serverAssociation);
     }
 
-    void delete(ServerAssociation serverAssociation) throws Exception {
+    void deleteAssociation(ServerAssociation serverAssociation) throws Exception {
         memcached.delete(toKey(serverAssociation.getHandle()));
     }
 
@@ -69,7 +69,7 @@ public class MemcachedServerAssociationStore implements ServerAssociationStore {
                 String handle = Long.toHexString(random.nextLong());
                 Association association = Association.generate(type, handle, expiryIn);
                 String macKey = new String(Base64.encodeBase64(association.getMacKey().getEncoded()));
-                save(new ServerAssociation(handle, type, macKey, association.getExpiry()));
+                saveAssociation(new ServerAssociation(handle, type, macKey, association.getExpiry()));
                 return association;
             } catch (Exception e) {
                 if (log.isDebugEnabled()) {
@@ -87,7 +87,7 @@ public class MemcachedServerAssociationStore implements ServerAssociationStore {
         Association association = null;
 
         try {
-            ServerAssociation serverAssociation = find(handle);
+            ServerAssociation serverAssociation = findAssociation(handle);
 
             if (serverAssociation == null) {
                 if (log.isDebugEnabled()) {
@@ -126,9 +126,9 @@ public class MemcachedServerAssociationStore implements ServerAssociationStore {
     @Override
     public void remove(String handle) {
         try {
-            ServerAssociation serverAssociation = find(handle);
+            ServerAssociation serverAssociation = findAssociation(handle);
             if (serverAssociation != null) {
-                delete(serverAssociation);
+                deleteAssociation(serverAssociation);
             }
         } catch (Exception e) {
             if (log.isDebugEnabled()) {
