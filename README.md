@@ -21,8 +21,9 @@ http://code.google.com/p/openid4java/
 ## Usage
 
 ```java
+String namespace = "myapp";
 List<InetSocketAddress> memcachedServers = Arrays.asList(new InetSocketAddress("localhost", 11211);
-ServerAssociationStore associationStore = new MemcachedServerAssociationStore(memcachedServers);
+ServerAssociationStore associationStore = new MemcachedServerAssociationStore(namespace, memcachedServers);
 
 ServerManager manager = new ServerManager();
 manager.setSharedAssociations(associationStore);
