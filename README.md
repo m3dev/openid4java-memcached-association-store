@@ -14,7 +14,7 @@ http://code.google.com/p/openid4java/
 <dependency>
     <groupId>com.m3</groupId>
     <artifactId>openid4java-memcached-association-store</artifactId>
-    <version>1.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
