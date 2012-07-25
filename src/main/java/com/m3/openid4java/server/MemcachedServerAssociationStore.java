@@ -53,8 +53,8 @@ public class MemcachedServerAssociationStore implements ServerAssociationStore {
     }
 
     void saveAssociation(ServerAssociation serverAssociation) throws Exception {
-        Long expiration = serverAssociation.getDatetimeToExpire().getTime() - System.currentTimeMillis();
-        memcached.set(toKey(serverAssociation.getHandle()), expiration.intValue(), serverAssociation);
+        Long expirationSeconds = (serverAssociation.getDatetimeToExpire().getTime() - System.currentTimeMillis()) / 1000;
+        memcached.set(toKey(serverAssociation.getHandle()), expirationSeconds.intValue(), serverAssociation);
     }
 
     void deleteAssociation(ServerAssociation serverAssociation) throws Exception {

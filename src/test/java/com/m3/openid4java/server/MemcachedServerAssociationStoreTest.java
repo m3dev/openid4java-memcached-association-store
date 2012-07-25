@@ -54,12 +54,17 @@ public class MemcachedServerAssociationStoreTest {
 
             String type = Association.TYPE_HMAC_SHA1;
             String macKey = "xcxf23232sdfsdf";
-            Date datetimeToExpire = new Date(System.currentTimeMillis() + 10000L);
+            Date datetimeToExpire = new Date(System.currentTimeMillis() + 1000L);
             ServerAssociation serverAssociation = new ServerAssociation(handle, type, macKey, datetimeToExpire);
             store.saveAssociation(serverAssociation);
 
             // should be found
             assertThat(store.findAssociation(handle), is(not(nullValue())));
+
+            Thread.sleep(2000L);
+
+            // should not be found
+            assertThat(store.findAssociation(handle), is(nullValue()));
 
         } finally {
             store.remove(handle);
