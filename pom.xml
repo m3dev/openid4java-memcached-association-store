@@ -4,7 +4,7 @@
 
     <groupId>com.m3</groupId>
     <artifactId>openid4java-memcached-association-store</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
 
     <name>openid4java-memcached-association-store</name>
