@@ -138,4 +138,15 @@ public class MemcachedServerAssociationStore implements ServerAssociationStore {
         }
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            super.finalize();
+        } finally {
+            if (this.memcached != null && !this.memcached.isShutdown()) {
+                this.memcached.shutdown();
+            }
+        }
+    }
+
 }
