@@ -35,7 +35,7 @@ public class MemcachedServerAssociationStoreTest {
         String handle = "xxxx";
         String actual = store.toKey(handle);
         // then
-        String expected = "openid4java::MemcachedServerAssociationStoreTest::xxxx";
+        String expected = "openid4java::xxxx";
         assertThat(actual, is(equalTo(expected)));
     }
 

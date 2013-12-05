@@ -15,8 +15,9 @@
  */
 package com.m3.openid4java.server;
 
-import net.rubyeye.xmemcached.MemcachedClient;
-import net.rubyeye.xmemcached.XMemcachedClient;
+import com.m3.memcached.facade.Configuration;
+import com.m3.memcached.facade.MemcachedClientPool;
+import com.m3.memcached.facade.adaptor.SpymemcachedAdaptor;
 import org.apache.commons.codec.binary.Base64;
 import org.openid4java.association.Association;
 import org.openid4java.association.AssociationException;
@@ -24,7 +25,6 @@ import org.openid4java.server.ServerAssociationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Date;
 import java.util.List;
@@ -36,29 +36,31 @@ public class MemcachedServerAssociationStore implements ServerAssociationStore {
 
     private final Random random = new Random(System.currentTimeMillis());
 
-    private final String namespace;
-    private final MemcachedClient memcached;
+    private final MemcachedClientPool memcached;
 
-    public MemcachedServerAssociationStore(String namespace, List<InetSocketAddress> addresses) throws IOException {
-        this.namespace = namespace;
-        this.memcached = new XMemcachedClient(addresses);
+    public MemcachedServerAssociationStore(String namespace, List<InetSocketAddress> addresses) throws Exception {
+        Configuration config = new Configuration();
+        config.setAdaptorClass(SpymemcachedAdaptor.class);
+        config.setNamespace(namespace);
+        config.setAddresses(addresses);
+        this.memcached = new MemcachedClientPool(config);
     }
 
     String toKey(String handle) {
-        return "openid4java::" + namespace + "::" + handle;
+        return "openid4java::" + handle;
     }
 
     ServerAssociation findAssociation(String handle) throws Exception {
-        return (ServerAssociation) memcached.get(toKey(handle));
+        return (ServerAssociation) memcached.getClient().get(toKey(handle));
     }
 
     void saveAssociation(ServerAssociation serverAssociation) throws Exception {
         Long expirationSeconds = (serverAssociation.getDatetimeToExpire().getTime() - System.currentTimeMillis()) / 1000;
-        memcached.set(toKey(serverAssociation.getHandle()), expirationSeconds.intValue(), serverAssociation);
+        memcached.getClient().set(toKey(serverAssociation.getHandle()), expirationSeconds.intValue(), serverAssociation);
     }
 
     void deleteAssociation(ServerAssociation serverAssociation) throws Exception {
-        memcached.delete(toKey(serverAssociation.getHandle()));
+        memcached.getClient().delete(toKey(serverAssociation.getHandle()));
     }
 
     @Override
@@ -143,9 +145,17 @@ public class MemcachedServerAssociationStore implements ServerAssociationStore {
         try {
             super.finalize();
         } finally {
-            if (this.memcached != null && !this.memcached.isShutdown()) {
-                this.memcached.shutdown();
+            shutdownPool();
+        }
+    }
+
+    public void shutdownPool() {
+        try {
+            if (memcached != null) {
+                memcached.shutdown();
             }
+        } catch (Exception e) {
+            log.error("Failed to shutdown memcached pool", e);
         }
     }
 
